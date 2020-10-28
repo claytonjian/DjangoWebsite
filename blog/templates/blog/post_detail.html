@@ -15,12 +15,12 @@
 		    </div>
 		    <h2 class="article-title">{{ object.title }}</h2>
 		    <p class="article-content">{{ object.content }}</p>
+		    <br>
+			<hr>
+		    Likes - {{ object.total_likes }}
 		    {% if user.is_authenticated %}
-			    <br>
-			    <hr>
 			    <form action="{% url 'like-post' object.pk %}" method="POST">
 			    	{% csrf_token %}
-			    	Likes - {{ object.total_likes }}
 			    	<br>
 			    	<button type="submit" name = "post_id" value="{{ object.id }}" class ="btn btn-primary btn-sm">Like</button>
 			    </form>
