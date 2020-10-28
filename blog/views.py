@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy, reverse
+from django.http import HttpResponseRedirect
 from .models import Post
 
 def home(request):
@@ -9,6 +11,11 @@ def home(request):
 		'posts': Post.objects.all()
 	}
 	return render(request, 'blog/home.html', context)
+
+def PostLikeView(request, pk):
+	post = get_object_or_404(Post, id=request.POST.get('post_id'))
+	post.likes.add(request.user)
+	return HttpResponseRedirect(reverse('post-detail', args=[str(pk)]))
 
 class PostListView(ListView):
 	model = Post
@@ -29,6 +36,13 @@ class UserPostListView(ListView):
 
 class PostDetailView(DetailView):
 	model = Post
+
+	def get_context_data(self, *args, **kwargs):
+		context = super(PostDetailView, self).get_context_data()
+		likes_variable = get_object_or_404(Post, id=self.kwargs['pk'])
+		total_likes = likes_variable.total_likes()
+		context["total_likes"] = total_likes
+		return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
 	model = Post
